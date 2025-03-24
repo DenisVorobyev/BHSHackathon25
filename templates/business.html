@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Dashboard - Stock & Crypto Analysis</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --background-color: #f8f9fa;
+        }
+        
+        body {
+            background-color: var(--background-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            background-color: var(--primary-color);
+            padding: 1rem;
+        }
+        
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            padding: 1rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--secondary-color);
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-danger {
+            background-color: var(--accent-color);
+            border: none;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        .nav-tabs .nav-link {
+            color: var(--primary-color);
+            border: none;
+            padding: 0.5rem 1rem;
+            margin-right: 0.5rem;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--secondary-color);
+            border-bottom: 2px solid var(--secondary-color);
+        }
+
+        .sentiment-score {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-around;
+            gap: 1rem;
+        }
+
+        .sentiment-item {
+            flex: 1;
+            padding: 0.5rem;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .sentiment-positive {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .sentiment-negative {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .sentiment-neutral {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+
+        .crypto-card {
+            transition: transform 0.2s;
+        }
+
+        .crypto-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class='bx bx-line-chart'></i> Business Dashboard
+            </a>
+            <div class="ms-auto">
+                <a href="/" class="btn btn-outline-light me-2">User View</a>
+                <a href="/business" class="btn btn-light">Business View</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Market Overview -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class='bx bx-line-chart'></i> Market Overview
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <h5>Total Market Cap</h5>
+                                    <h3>$2.5T</h3>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <h5>24h Volume</h5>
+                                    <h3>$85B</h3>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <h5>BTC Dominance</h5>
+                                    <h3>48.5%</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock Buyback Analysis Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class='bx bx-building'></i> Stock Buyback Analysis
+                    </div>
+                    <div class="card-body">
+                        <form id="company-analysis-form">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="company-symbol" class="form-label">Company Symbol</label>
+                                        <input type="text" class="form-control" id="company-symbol" value="AVGO" required>
+                                        <small class="text-muted">Enter the company's stock symbol (e.g., AVGO for Broadcom)</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">&nbsp;</label>
+                                        <button type="button" class="btn btn-primary d-block" onclick="analyzeCompany()">
+                                            <i class='bx bx-analyse'></i> Analyze Company
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        <div id="company-analysis-results" class="mt-4">
+                            <p>Enter a company symbol to analyze buyback potential.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Crypto Analysis Section -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class='bx bx-bitcoin'></i> Crypto Sentiment Analysis
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Bitcoin Analysis -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card crypto-card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Bitcoin (BTC)</h5>
+                                        <div class="chart-container">
+                                            <canvas id="btcChart"></canvas>
+                                        </div>
+                                        <div id="btcSentiment" class="sentiment-score">
+                                            Loading sentiment...
+                                        </div>
+                                        <div id="btcReasoning" class="mt-3">
+                                            <h6>Sentiment Reasoning:</h6>
+                                            <p>Loading reasoning...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Solana Analysis -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card crypto-card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Solana (SOL)</h5>
+                                        <div class="chart-container">
+                                            <canvas id="solChart"></canvas>
+                                        </div>
+                                        <div id="solSentiment" class="sentiment-score">
+                                            Loading sentiment...
+                                        </div>
+                                        <div id="solReasoning" class="mt-3">
+                                            <h6>Sentiment Reasoning:</h6>
+                                            <p>Loading reasoning...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialize charts
+        const btcCtx = document.getElementById('btcChart').getContext('2d');
+        const solCtx = document.getElementById('solChart').getContext('2d');
+
+        const btcChart = new Chart(btcCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'BTC Price',
+                    data: [],
+                    borderColor: '#f7931a',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        const solChart = new Chart(solCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'SOL Price',
+                    data: [],
+                    borderColor: '#9945FF',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        // Update crypto data
+        function updateCryptoData() {
+            fetch('/api/crypto/btc')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('btcSentiment').innerHTML = `
+                        <div class="sentiment-item sentiment-positive">
+                            Positive: ${(data.sentiment.positive * 100).toFixed(1)}%
+                        </div>
+                        <div class="sentiment-item sentiment-negative">
+                            Negative: ${(data.sentiment.negative * 100).toFixed(1)}%
+                        </div>
+                        <div class="sentiment-item sentiment-neutral">
+                            Neutral: ${(data.sentiment.neutral * 100).toFixed(1)}%
+                        </div>
+                    `;
+                    document.getElementById('btcReasoning').querySelector('p').textContent = data.reasoning;
+                    
+                    // Update BTC chart
+                    btcChart.data.labels = data.price_history.labels;
+                    btcChart.data.datasets[0].data = data.price_history.prices;
+                    btcChart.update();
+                });
+
+            fetch('/api/crypto/sol')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('solSentiment').innerHTML = `
+                        <div class="sentiment-item sentiment-positive">
+                            Positive: ${(data.sentiment.positive * 100).toFixed(1)}%
+                        </div>
+                        <div class="sentiment-item sentiment-negative">
+                            Negative: ${(data.sentiment.negative * 100).toFixed(1)}%
+                        </div>
+                        <div class="sentiment-item sentiment-neutral">
+                            Neutral: ${(data.sentiment.neutral * 100).toFixed(1)}%
+                        </div>
+                    `;
+                    document.getElementById('solReasoning').querySelector('p').textContent = data.reasoning;
+                    
+                    // Update SOL chart
+                    solChart.data.labels = data.price_history.labels;
+                    solChart.data.datasets[0].data = data.price_history.prices;
+                    solChart.update();
+                });
+        }
+
+        // Company analysis function
+        function analyzeCompany() {
+            const symbol = document.getElementById('company-symbol').value;
+            
+            fetch('/api/analyze_company', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ symbol })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'error') {
+                    document.getElementById('company-analysis-results').innerHTML = `
+                        <div class="alert alert-danger">
+                            ${data.message}
+                        </div>
+                    `;
+                    return;
+                }
+
+                const analysis = data.data;
+                const scoreClass = analysis.score >= 80 ? 'success' :
+                                 analysis.score >= 60 ? 'info' :
+                                 analysis.score >= 40 ? 'warning' : 'danger';
+
+                document.getElementById('company-analysis-results').innerHTML = `
+                    <div class="card">
+                        <div class="card-header bg-${scoreClass} text-white">
+                            <h5 class="mb-0">${analysis.recommendation}</h5>
+                            <small>Score: ${analysis.score}/100</small>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Key Metrics</h6>
+                                    <p><strong>Market Cap:</strong> $${(analysis.metrics.market_cap / 1e9).toFixed(2)}B</p>
+                                    <p><strong>Free Cash Flow:</strong> $${(analysis.metrics.free_cash_flow / 1e9).toFixed(2)}B</p>
+                                    <p><strong>Total Cash:</strong> $${(analysis.metrics.total_cash / 1e9).toFixed(2)}B</p>
+                                    <p><strong>Cash to Market Cap Ratio:</strong> ${(analysis.metrics.cash_to_market_cap_ratio * 100).toFixed(2)}%</p>
+                                    <p><strong>FCF to Market Cap Ratio:</strong> ${(analysis.metrics.fcf_to_market_cap_ratio * 100).toFixed(2)}%</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Financial Health</h6>
+                                    <p><strong>Cash Position:</strong> ${analysis.financial_health.cash_position}</p>
+                                    <p><strong>Cash Flow:</strong> ${analysis.financial_health.cash_flow}</p>
+                                    <p><strong>Profitability:</strong> ${analysis.financial_health.profitability}</p>
+                                    <p><strong>Debt Level:</strong> ${analysis.financial_health.debt_level}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('company-analysis-results').innerHTML = `
+                    <div class="alert alert-danger">
+                        Error analyzing company. Please check the console for details.
+                    </div>
+                `;
+            });
+        }
+
+        // Update data periodically
+        setInterval(updateCryptoData, 30000); // Update every 30 seconds
+
+        // Initial data load
+        updateCryptoData();
+    </script>
+</body>
+</html> 
